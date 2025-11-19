@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # Database MySQL
+  db:
+    image: mysql:8.0
+    container_name: todo-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: todo_db
+      MYSQL_USER: todo_user
+      MYSQL_PASSWORD: todo_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - todo-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend PHP con Apache
+  backend:
+    build: ./backend
+    container_name: todo-backend
+    restart: always
+    ports:
+      - "8001:80"
+    volumes:
+      - ./backend/src:/var/www/html
+    environment:
+      DB_HOST: db
+      DB_NAME: todo_db
+      DB_USER: todo_user
+      DB_PASSWORD: todo_pass
+      JWT_SECRET: supersecretkey123456789
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - todo-network
+
+networks:
+  todo-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # Database MySQL
+  db:
+    image: mysql:8.0
+    container_name: secretsanta-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: secretsanta_db
+      MYSQL_USER: santa_user
+      MYSQL_PASSWORD: santa_pass
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - santa-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend FastAPI
+  backend:
+    build: ./backend
+    container_name: secretsanta-backend
+    restart: always
+    ports:
+      - "8003:8000"
+    environment:
+      DATABASE_URL: mysql+pymysql://santa_user:santa_pass@db:3306/secretsanta_db
+      SECRET_KEY: secretsanta_jwt_key_2024
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - santa-network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Frontend Next.js
+  frontend:
+    build: ./frontend
+    container_name: secretsanta-frontend
+    restart: always
+    ports:
+      - "3003:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8003
+    depends_on:
+      - backend
+    networks:
+      - santa-network
+
+networks:
+  santa-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

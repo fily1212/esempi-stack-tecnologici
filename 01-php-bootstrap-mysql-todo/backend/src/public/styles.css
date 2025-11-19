@@ -1,0 +1,87 @@
+/**
+ * Stili personalizzati per Todo List App
+ */
+
+/* Altezza minima per la pagina */
+html, body {
+    height: 100%;
+}
+
+/* Card con ombra leggera */
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Animazione per i task completati */
+.text-decoration-line-through {
+    opacity: 0.7;
+}
+
+/* Badge con margine */
+.badge {
+    margin-right: 0.25rem;
+}
+
+/* Responsive: riduce padding su mobile */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+
+    .container {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+
+/* Bottoni gruppo filtri */
+.btn-group .btn-check:checked + .btn {
+    font-weight: bold;
+}
+
+/* Animazione fade-in per i task */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#tasksList .card {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Spinner centrato */
+#loadingSpinner {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Focus states per accessibilità */
+input:focus,
+textarea:focus,
+select:focus,
+button:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+/* Task card border più evidente */
+.card.border-warning {
+    border-width: 2px;
+}
+
+.card.border-success {
+    border-width: 2px;
+}
