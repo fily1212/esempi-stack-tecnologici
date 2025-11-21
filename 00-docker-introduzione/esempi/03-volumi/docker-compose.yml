@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # Database PostgreSQL con volume persistente
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-persistente
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: esempio_db
+    ports:
+      - "5432:5432"
+    volumes:
+      # Volume nominato per persistenza
+      - postgres_data:/var/lib/postgresql/data
+      # Script di inizializzazione
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+
+  # Adminer - interfaccia web per gestire database
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  # Volume nominato - persiste anche dopo docker-compose down
+  postgres_data:
+    driver: local
+
+# Come usare:
+# 1. docker-compose up -d
+# 2. Apri http://localhost:8080
+# 3. Login: Sistema=PostgreSQL, Server=postgres, User=admin, Password=password123, Database=esempio_db
+# 4. Crea tabelle e inserisci dati
+# 5. docker-compose down
+# 6. docker-compose up -d
+# 7. I dati sono ancora lì! ✅

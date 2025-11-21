@@ -1,0 +1,50 @@
+version: '3.8'
+
+# Esempio: App Node.js che usa Redis per caching
+services:
+  # Redis - database in-memory per cache
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+  # App Node.js che usa Redis
+  app:
+    build: .
+    container_name: nodejs-app
+    ports:
+      - "3000:3000"
+    environment:
+      # L'app può usare "redis" come hostname!
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - redis
+    networks:
+      - app-network
+    volumes:
+      - ./app.js:/app/app.js:ro
+
+networks:
+  # Rete custom per i nostri servizi
+  app-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+
+# Come testare:
+# 1. docker-compose up --build
+# 2. curl http://localhost:3000/set/nome/Mario
+# 3. curl http://localhost:3000/get/nome
+# 4. curl http://localhost:3000/stats
+# 5. docker-compose logs app
+# 6. docker-compose exec redis redis-cli
+#    > KEYS *
+#    > GET nome
