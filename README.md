@@ -1,11 +1,12 @@
 # Esempi Stack Tecnologici Fullstack
 
-Collezione di 7 esempi fullstack completi per scopi didattici, ognuno con stack tecnologico diverso, Docker e database.
+Collezione di 8 esempi (1 introduttivo + 7 fullstack) per scopi didattici, con stack tecnologici diversi, Docker e database.
 
 ## 📚 Indice Esempi
 
 | # | Stack | Applicazione | Database | Auth |
 |---|-------|--------------|----------|------|
+| **00** | 🐳 **Docker Introduzione** | Guida + Esempi Pratici | - | - |
 | **01** | PHP + Bootstrap + MySQL | Todo List | MySQL | ✅ JWT |
 | **02** | PHP + React + MongoDB | Blog Multi-Utente | MongoDB | ✅ JWT |
 | **03** | FastAPI + Next.js + MySQL | Secret Santa Generator | MySQL | ✅ JWT |
@@ -41,6 +42,35 @@ Consulta il README.md di ogni esempio per porte, credenziali e istruzioni specif
 ---
 
 ## 📖 Dettaglio Esempi
+
+### 00 - 🐳 Introduzione a Docker (PREREQUISITO)
+**Tipo:** Guida didattica + Esempi pratici
+**Cosa impari:**
+- Concetti base: immagine, container, volume, network, Dockerfile, Compose
+- Comandi essenziali Docker
+- 6 esempi progressivi funzionanti:
+  1. Hello World (primo container)
+  2. Container interattivi (Ubuntu, Alpine, Python, Node)
+  3. **Volumi e persistenza** (PostgreSQL + Adminer GUI)
+  4. **Networking** (Node.js + Redis comunicazione tra container)
+  5. Docker Compose base (spiegazioni)
+  6. **App Multi-Container completa** (Nginx + Node.js + MongoDB)
+
+**Features Esempio 06 (App Multi-Container):**
+- 🌐 Frontend HTML/CSS/JS servito con Nginx
+- 🔧 Backend API REST con Node.js + Express
+- 💾 Database MongoDB con script inizializzazione
+- 📝 Todo list funzionante end-to-end
+- 🏗️ Dimostra architettura a 3 tier
+
+**Esercizi Pratici:**
+- 10 esercizi guidati (principiante → avanzato)
+- Progetto finale completo
+- Checklist competenze
+
+**⚠️ INIZIA DA QUI prima di passare agli esempi 01-07!**
+
+---
 
 ### 01 - Todo List (PHP + Bootstrap + MySQL)
 **Stack:** PHP vanilla, HTML/CSS/JS, Bootstrap 5, MySQL
