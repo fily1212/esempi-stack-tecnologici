@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: quiz-postgres
+    environment:
+      POSTGRES_USER: quiz_user
+      POSTGRES_PASSWORD: quiz_pass
+      POSTGRES_DB: quiz_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - quiz-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quiz_user -d quiz_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: quiz-backend
+    ports:
+      - "8007:8080"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: quiz_user
+      DB_PASSWORD: quiz_pass
+      DB_NAME: quiz_db
+      PORT: 8080
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - quiz-network
+    volumes:
+      - ./init/domande.csv:/app/domande.csv
+
+  frontend:
+    build: ./frontend
+    container_name: quiz-frontend
+    ports:
+      - "3007:80"
+    environment:
+      REACT_APP_API_URL: http://localhost:8007
+    depends_on:
+      - backend
+    networks:
+      - quiz-network
+
+networks:
+  quiz-network:
+
+volumes:
+  postgres_data:

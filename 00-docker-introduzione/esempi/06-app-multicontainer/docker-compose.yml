@@ -1,0 +1,62 @@
+version: '3.8'
+
+# App completa: Frontend (Nginx) + Backend (Node.js) + Database (MongoDB)
+services:
+  # Frontend - Server web statico con Nginx
+  frontend:
+    build: ./frontend
+    container_name: app-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # Backend - API REST con Node.js + Express
+  backend:
+    build: ./backend
+    container_name: app-backend
+    ports:
+      - "3000:3000"
+    environment:
+      MONGO_URL: mongodb://database:27017/todoapp
+      PORT: 3000
+    depends_on:
+      - database
+    networks:
+      - app-network
+    volumes:
+      - ./backend/server.js:/app/server.js:ro
+
+  # Database - MongoDB
+  database:
+    image: mongo:7-jammy
+    container_name: app-database
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - app-network
+    environment:
+      MONGO_INITDB_DATABASE: todoapp
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+
+# Come funziona:
+# 1. L'utente apre http://localhost:8080 (frontend)
+# 2. Il frontend fa richieste AJAX a http://localhost:3000 (backend)
+# 3. Il backend parla con mongodb://database:27017 (database)
+# 4. Tutti e 3 i container sono sulla rete "app-network"
+
+# Comandi utili:
+# docker-compose up --build          # Avvia tutto
+# docker-compose logs backend        # Vedi log backend
+# docker-compose exec database mongosh  # Accedi a MongoDB

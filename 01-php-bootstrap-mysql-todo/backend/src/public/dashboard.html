@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Todo List App</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/public/styles.css">
+</head>
+<body class="bg-light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-check-circle-fill"></i> Todo List
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3">
+                    <i class="bi bi-person-circle"></i>
+                    <span id="userName"></span>
+                </span>
+                <button class="btn btn-outline-light btn-sm" id="logoutBtn">
+                    <i class="bi bi-box-arrow-right"></i> Esci
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Colonna form aggiunta task -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-plus-circle"></i> Nuovo Task
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="taskForm">
+                            <div class="mb-3">
+                                <label for="titolo" class="form-label">Titolo *</label>
+                                <input type="text" class="form-control" id="titolo" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="descrizione" class="form-label">Descrizione</label>
+                                <textarea class="form-control" id="descrizione" rows="3"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="categoria" class="form-label">Categoria</label>
+                                <select class="form-select" id="categoria">
+                                    <option value="Personale">Personale</option>
+                                    <option value="Lavoro">Lavoro</option>
+                                    <option value="Studio">Studio</option>
+                                    <option value="Altro">Altro</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-plus-lg"></i> Aggiungi Task
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Statistiche -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="bi bi-bar-chart"></i> Statistiche
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Totali:</span>
+                            <strong id="statTotal">0</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Da fare:</span>
+                            <strong id="statTodo" class="text-warning">0</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Completati:</span>
+                            <strong id="statDone" class="text-success">0</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonna lista task -->
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="bi bi-list-task"></i> I Miei Task
+                            </h5>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <input type="radio" class="btn-check" name="filterStato" id="filterAll" value="" checked>
+                                <label class="btn btn-outline-secondary" for="filterAll">Tutti</label>
+
+                                <input type="radio" class="btn-check" name="filterStato" id="filterTodo" value="da_fare">
+                                <label class="btn btn-outline-warning" for="filterTodo">Da fare</label>
+
+                                <input type="radio" class="btn-check" name="filterStato" id="filterDone" value="completato">
+                                <label class="btn btn-outline-success" for="filterDone">Completati</label>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <select class="form-select form-select-sm" id="filterCategoria">
+                                <option value="">Tutte le categorie</option>
+                                <option value="Personale">Personale</option>
+                                <option value="Lavoro">Lavoro</option>
+                                <option value="Studio">Studio</option>
+                                <option value="Altro">Altro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Spinner caricamento -->
+                        <div id="loadingSpinner" class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Caricamento...</span>
+                            </div>
+                        </div>
+
+                        <!-- Lista task -->
+                        <div id="tasksList" class="d-none"></div>
+
+                        <!-- Messaggio nessun task -->
+                        <div id="noTasks" class="text-center py-5 d-none">
+                            <i class="bi bi-inbox display-1 text-muted"></i>
+                            <p class="text-muted mt-3">Nessun task trovato</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal modifica task -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifica Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editTaskForm">
+                        <input type="hidden" id="editTaskId">
+
+                        <div class="mb-3">
+                            <label for="editTitolo" class="form-label">Titolo *</label>
+                            <input type="text" class="form-control" id="editTitolo" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editDescrizione" class="form-label">Descrizione</label>
+                            <textarea class="form-control" id="editDescrizione" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editCategoria" class="form-label">Categoria</label>
+                            <select class="form-select" id="editCategoria">
+                                <option value="Personale">Personale</option>
+                                <option value="Lavoro">Lavoro</option>
+                                <option value="Studio">Studio</option>
+                                <option value="Altro">Altro</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editStato" class="form-label">Stato</label>
+                            <select class="form-select" id="editStato">
+                                <option value="da_fare">Da fare</option>
+                                <option value="completato">Completato</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" id="saveEditBtn">Salva modifiche</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/public/app.js"></script>
+</body>
+</html>

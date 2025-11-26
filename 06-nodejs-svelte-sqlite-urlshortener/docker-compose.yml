@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: urlshort-backend
+    ports:
+      - "8006:3000"
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/data:/app/data
+    environment:
+      NODE_ENV: development
+    networks:
+      - url-network
+
+  frontend:
+    build: ./frontend
+    container_name: urlshort-frontend
+    ports:
+      - "3006:5000"
+    volumes:
+      - ./frontend/src:/app/src
+    environment:
+      VITE_API_URL: http://localhost:8006
+    networks:
+      - url-network
+
+networks:
+  url-network:

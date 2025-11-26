@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Database MongoDB
+  mongodb:
+    image: mongo:7.0
+    container_name: blog-mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin_password
+      MONGO_INITDB_DATABASE: blog_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./init/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - blog-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/blog_db --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend PHP REST API
+  backend:
+    build: ./backend
+    container_name: blog-backend
+    restart: always
+    ports:
+      - "8002:80"
+    volumes:
+      - ./backend/src:/var/www/html
+    environment:
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      MONGO_DB: blog_db
+      MONGO_USER: blog_user
+      MONGO_PASSWORD: blog_pass
+      JWT_SECRET: blog_secret_key_2024
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - blog-network
+
+  # Frontend React
+  frontend:
+    build: ./frontend
+    container_name: blog-frontend
+    restart: always
+    ports:
+      - "3002:80"
+    environment:
+      REACT_APP_API_URL: http://localhost:8002/api
+    depends_on:
+      - backend
+    networks:
+      - blog-network
+
+networks:
+  blog-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

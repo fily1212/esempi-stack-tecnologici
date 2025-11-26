@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrazione - Todo List App</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/public/styles.css">
+</head>
+<body class="bg-light">
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow">
+                    <div class="card-body p-5">
+                        <h2 class="text-center mb-4">
+                            <i class="bi bi-check-circle-fill text-primary"></i>
+                            Todo List
+                        </h2>
+                        <h5 class="card-title text-center mb-4">Registrati</h5>
+
+                        <!-- Alert per messaggi di errore/successo -->
+                        <div id="alertDiv" class="alert d-none" role="alert"></div>
+
+                        <form id="registerForm">
+                            <div class="mb-3">
+                                <label for="nome" class="form-label">Nome</label>
+                                <input type="text" class="form-control" id="nome" required
+                                       placeholder="Mario Rossi">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" required
+                                       placeholder="mario@example.com">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" required
+                                       placeholder="••••••••" minlength="6">
+                                <div class="form-text">Minimo 6 caratteri</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Conferma Password</label>
+                                <input type="password" class="form-control" id="confirmPassword" required
+                                       placeholder="••••••••">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 mb-3" id="registerBtn">
+                                <span id="registerBtnText">Registrati</span>
+                                <span id="registerBtnSpinner" class="spinner-border spinner-border-sm d-none" role="status">
+                                    <span class="visually-hidden">Caricamento...</span>
+                                </span>
+                            </button>
+                        </form>
+
+                        <hr>
+
+                        <p class="text-center mb-0">
+                            Hai già un account?
+                            <a href="/public/login.html" class="text-decoration-none">Accedi</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <script>
+        // Configurazione API
+        const API_BASE = '/api';
+
+        // Gestione form registrazione
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const alertDiv = document.getElementById('alertDiv');
+            const registerBtn = document.getElementById('registerBtn');
+            const registerBtnText = document.getElementById('registerBtnText');
+            const registerBtnSpinner = document.getElementById('registerBtnSpinner');
+
+            // Nasconde eventuali messaggi precedenti
+            alertDiv.classList.add('d-none');
+
+            // Validazione password
+            if (password !== confirmPassword) {
+                alertDiv.textContent = 'Le password non coincidono';
+                alertDiv.classList.remove('d-none', 'alert-success');
+                alertDiv.classList.add('alert-danger');
+                return;
+            }
+
+            if (password.length < 6) {
+                alertDiv.textContent = 'La password deve essere di almeno 6 caratteri';
+                alertDiv.classList.remove('d-none', 'alert-success');
+                alertDiv.classList.add('alert-danger');
+                return;
+            }
+
+            // Mostra spinner
+            registerBtn.disabled = true;
+            registerBtnText.classList.add('d-none');
+            registerBtnSpinner.classList.remove('d-none');
+
+            try {
+                const response = await fetch(`${API_BASE}/auth.php?action=register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nome, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Salva il token nel localStorage
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+
+                    // Mostra messaggio di successo
+                    alertDiv.textContent = 'Registrazione completata! Reindirizzamento...';
+                    alertDiv.classList.remove('d-none', 'alert-danger');
+                    alertDiv.classList.add('alert-success');
+
+                    // Redirect alla dashboard dopo 1 secondo
+                    setTimeout(() => {
+                        window.location.href = '/public/dashboard.html';
+                    }, 1000);
+
+                } else {
+                    // Mostra errore
+                    alertDiv.textContent = data.error || 'Errore durante la registrazione';
+                    alertDiv.classList.remove('d-none', 'alert-success');
+                    alertDiv.classList.add('alert-danger');
+                }
+
+            } catch (error) {
+                console.error('Errore:', error);
+                alertDiv.textContent = 'Errore di connessione al server';
+                alertDiv.classList.remove('d-none', 'alert-success');
+                alertDiv.classList.add('alert-danger');
+            } finally {
+                // Ripristina il pulsante (solo se non c'è successo)
+                if (!alertDiv.classList.contains('alert-success')) {
+                    registerBtn.disabled = false;
+                    registerBtnText.classList.remove('d-none');
+                    registerBtnSpinner.classList.add('d-none');
+                }
+            }
+        });
+
+        // Verifica se l'utente è già loggato
+        if (localStorage.getItem('token')) {
+            window.location.href = '/public/dashboard.html';
+        }
+    </script>
+</body>
+</html>

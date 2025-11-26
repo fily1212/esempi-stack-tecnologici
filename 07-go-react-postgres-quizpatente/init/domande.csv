@@ -1,0 +1,11 @@
+id,categoria,domanda,risposta_corretta,immagine_url
+1,Segnaletica,Il segnale di STOP obbliga a fermarsi e dare precedenza,VERO,
+2,Segnaletica,Il segnale di divieto di sorpasso vale solo per i veicoli pesanti,FALSO,
+3,Precedenza,In un incrocio con diritto di precedenza bisogna sempre rallentare,FALSO,
+4,Precedenza,Il conducente deve dare sempre la precedenza ai pedoni sulle strisce pedonali,VERO,
+5,Limiti,Il limite di velocità nei centri abitati è di 50 km/h,VERO,
+6,Limiti,In autostrada il limite minimo è di 80 km/h sulla corsia di sorpasso,FALSO,
+7,Comportamento,È vietato l'uso del cellulare alla guida senza auricolari o vivavoce,VERO,
+8,Comportamento,Si può sostare in doppia fila per pochi minuti se si resta in macchina,FALSO,
+9,Sicurezza,Le cinture di sicurezza devono essere indossate anche nei sedili posteriori,VERO,
+10,Sicurezza,Il casco è obbligatorio solo per i conducenti di motocicli ma non per i passeggeri,FALSO,
